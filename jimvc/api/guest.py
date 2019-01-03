@@ -200,7 +200,17 @@ def r_create():
             if guest.password is None or guest.password.__len__() < 1:
                 guest.password = ji.Common.generate_random_code(length=16)
 
-            guest.ip = db.r.spop(app_config['ip_available_set'])
+            guest_ip_addr = request.json.get('ip_addr')
+            guest_ip_addr_mask = request.json.get('ip_addr_mask')
+            guest_ip_addr_gateway = request.json.get('ip_addr_gateway')
+            if request.json.get('quantity') == 1 and guest_ip_addr is not None and guest_ip_addr.__len__() > 1:
+                guest.ip = guest_ip_addr
+            else:
+                guest.ip = db.r.spop(app_config['ip_available_set'])
+                guest_ip_addr = guest.ip
+                guest_ip_addr_mask = config.netmask
+                guest_ip_addr_gateway =config.gateway
+
             db.r.sadd(app_config['ip_used_set'], guest.ip)
 
             guest.network = config.vm_network
@@ -257,7 +267,7 @@ def r_create():
                 _os_template_initialize_operates[k]['content'] = v['content'].replace('{IP}', guest.ip).\
                     replace('{HOSTNAME}', guest.label). \
                     replace('{PASSWORD}', guest.password). \
-                    replace('{NETMASK}', config.netmask).\
+                    replace('{NETMASK}', guest_ip_addr_mask).\
                     replace('{GATEWAY}', config.gateway).\
                     replace('{DNS1}', config.dns1).\
                     replace('{DNS2}', config.dns2). \
@@ -266,8 +276,8 @@ def r_create():
                 _os_template_initialize_operates[k]['command'] = v['command'].replace('{IP}', guest.ip). \
                     replace('{HOSTNAME}', guest.label). \
                     replace('{PASSWORD}', guest.password). \
-                    replace('{NETMASK}', config.netmask). \
-                    replace('{GATEWAY}', config.gateway). \
+                    replace('{NETMASK}', guest_ip_addr_mask). \
+                    replace('{GATEWAY}', guest_ip_addr_gateway). \
                     replace('{DNS1}', config.dns1). \
                     replace('{DNS2}', config.dns2). \
                     replace('{SSH-KEY}', '\n'.join(ssh_keys))
@@ -794,8 +804,8 @@ def r_migrate(uuids, destination_host):
 
             # 忽略宕机计算节点 上面的 虚拟机 迁移请求
             # 忽略目标计算节点 等于 当前所在 计算节点 的虚拟机 迁移请求
-            if guest.node_id not in available_hosts_mapping_by_node_id or \
-                    available_hosts_mapping_by_node_id[guest.node_id]['hostname'] == destination_host:
+            if guest.node_id.__str__() not in available_hosts_mapping_by_node_id or \
+                    available_hosts_mapping_by_node_id[guest.node_id.__str__()]['hostname'] == destination_host:
                 continue
 
             message = {

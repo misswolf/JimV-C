@@ -205,6 +205,9 @@
             os_template_image_id: parseInt($('#os_template_image_id').val()),
             quantity: parseInt($('#quantity').val()),
             remark: $('#remark').val(),
+            ip_addr: $('#ip_addr').val(),
+            ip_addr_mask: $('#ip_addr_mask').val(),
+            ip_addr_gateway: $('#ip_addr_gateway').val(),
             password: $('#password').val(),
             ssh_keys_id: $("input[name=ssh_keys_id]:checked").map(function () {return this.value}).get(),
             lease_term: 100
@@ -267,6 +270,25 @@
         } else {
             $('#create_guest_form').formValidation('addField', 'node_id', {validators: {notEmpty: {}}});
             $('#node_id').parent().parent().css('display', 'unset');
+        }
+    }
+    function allocation_ipaddr_by_random_click_handler(me) {
+        if ($(me).prop('checked')) {
+            $('#create_guest_form').formValidation('removeField', 'ip_addr');
+            $('#create_guest_form').formValidation('removeField', 'ip_addr_mask');
+            $('#create_guest_form').formValidation('removeField', 'ip_addr_gateway');
+            $('#ip_addr').parent().parent().css('display', 'none');
+            $('#ip_addr_mask').parent().parent().css('display', 'none');
+            $('#ip_addr_gateway').parent().parent().css('display', 'none');
+
+        } else {
+            $('#create_guest_form').formValidation('addField', 'ip_addr', {validators: {notEmpty: {}}});
+            $('#create_guest_form').formValidation('addField', 'ip_addr_mask', {validators: {notEmpty: {}}});
+            $('#create_guest_form').formValidation('addField', 'ip_addr_gateway', {validators: {notEmpty: {}}});
+            $('#ip_addr').parent().parent().css('display', 'unset');
+            $('#ip_addr_mask').parent().parent().css('display', 'unset');
+            $('#ip_addr_gateway').parent().parent().css('display', 'unset');
+
         }
     }
 </script>
@@ -401,10 +423,43 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label"><span class="glyph-icon icon-elusive-shuffle"></span>&nbsp;&nbsp;配置网络</label>
+                        <div class="col-sm-6">
+                                <div class="row form-group">
+                                    <label class="col-sm-2 control-label">随机分配：</label>
+                                    <div class="col-sm-6">
+                                        <input onclick="allocation_ipaddr_by_random_click_handler(this);" type="checkbox" name="allocation_ipaddr_by_random" title="随机分配" class="form-control" id="allocation_ipaddr_by_random" checked>
+                                    </div>
+                                </div>
+                                <div class="row form-group" style="display: none;">
+                                    <label class="col-sm-2 control-label">网络地址：</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" name="ip_addr" title="网络地址" class="form-control" id="ip_addr" placeholder="网络IP地址">
+                                    </div>
+                               </div>
+                                 <div class="row form-group"style="display: none;">
+                                        <label class="col-sm-2 control-label">网络掩码：</label>
+                                        <div class="col-sm-6">
+                                            <input type="text" name="ip_addr_mask" title="网络掩码地址"  placeholder="网络掩码地址" class="form-control" id="ip_addr_mask">
+                                        </div>
+                                 </div>
+                                 <div class="row form-group"style="display: none;">
+                                    <div style="height: 10px;"></div>
+                                    <label class="col-sm-2 control-label">网关地址：</label>
+                                    <div class="col-sm-6">
+                                        <input id="ip_addr_gateway" name="ip_addr_gateway" type="text" title="实例名称" class="form-control" placeholder="网关地址">
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+
+
+                    <div class="form-group">
                         <label class="col-sm-2 control-label"><span class="glyph-icon icon-key"></span>&nbsp;&nbsp;SSH-KEY</label>
                         <div class="col-sm-6" id="ssh_keys_id_div">
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label"><span class="glyph-icon icon-elusive-shuffle"></span>&nbsp;&nbsp;创建模式</label>
                         <div class="col-sm-6">
