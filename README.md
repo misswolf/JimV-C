@@ -91,7 +91,7 @@ JimV 是一个，结构清晰简单，易于部署、维护、使用的，低门
 ## 安装
 
 ### 快速安装
-[JimV 文档中心](https://jimv.cn/docs.html)
+[JimV 文档中心](https://wiki.jimv.cn)
 
 
 ## [规划与建议](docs/suggest.md)
